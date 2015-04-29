@@ -13,8 +13,9 @@
 
 define("SQLITE_DATABASE",  	'data.sqlite');
 define("DISQUS_SHORTNAME", 	't-abluestar-com');
-define("GOOGLE_MAP_API", 		'AIzaSyAWNELaAjfGdi6nieLuvcGt-693M-K9d0Q');
-
+// define("GOOGLE_MAP_API", 	'AIzaSyAWNELaAjfGdi6nieLuvcGt-693M-K9d0Q');
+define("PROJECT_NAME", 		'');
+define("DEFAULT_THING",		'');
 
 
 class MyThing extends SQLite3
@@ -75,9 +76,9 @@ class MyThing extends SQLite3
 // Display logic 
 // --------------------------------
 // Default, List all pages 
-$page['act']  	= 'list'; 
+$page['act']  	= ''; 
 $page['title']  = ''; 
-$page['slug']		= '';
+$page['slug']	= '';
 
 // Check to see if ACT is set
 if( isset($_REQUEST['act'] ) ) {
@@ -87,7 +88,14 @@ if( isset($_REQUEST['act'] ) ) {
 	} else {
 		echo 'Error (1): Unknow act=['. $_REQUEST['act'] .']';
 	}
-} 
+} else {
+	$page['act']  	= 'list'; // Default 
+
+	if( strlen( DEFAULT_THING ) > 0 ) {
+		$page['act']  = 'view' ;
+		$page['slug'] = DEFAULT_THING ; 
+	}
+}
 
 // Check to see if we have defined a slug. 
 if( isset($_REQUEST['thing'] ) ) {
@@ -111,6 +119,10 @@ switch( $page['act'] ) {
 	}
 	case 'edit':
 	{
+		if( ! isset( $page['slug']) ) {
+			echo "Error: Missing required prameters, slug" ; 
+			die();			
+		}
 		$page['data'] = $db->GetBySlug( $page['slug'] ) ;
 		$page['title'] = 'Edit '. $page['slug'] ;
 		break; 
@@ -142,7 +154,7 @@ switch( $page['act'] ) {
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title><?php echo $page['title'] ; ?> - Comment on this thing</title>
+    <title><?php echo $page['title'] ; ?> - <?php echo PROJECT_NAME ; ?></title>
     <meta name="description" content="A page where you can comment on things">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -154,8 +166,8 @@ switch( $page['act'] ) {
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
-          <h1>{Project Name}</h1>
-          <a href='/'>List all </a>
+          <h1><?php echo PROJECT_NAME ; ?></h1>
+          <a href='?act=list'>List all </a>
         </div>
       </div>
     </nav>
